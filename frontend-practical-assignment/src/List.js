@@ -7,11 +7,17 @@ import TableRow from "@material-ui/core/TableRow";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import TextField from "@material-ui/core/TextField";
 import { Link } from "react-router-dom";
+import { useStateValue } from "./StateProvider";
+import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
+import FavoriteIcon from "@material-ui/icons/Favorite";
+import { actionTypes } from "./reducer";
 
 const List = () => {
+  const [{ term }, dispatch] = useStateValue();
   const [rates, setRates] = useState();
   const [loading, setLoading] = useState(true);
   const [inputValue, setInputValue] = useState("");
+  const [fav, setFav] = useState(term);
 
   useEffect(() => {
     fetch("http://api.nbp.pl/api/exchangerates/tables/a/")
@@ -21,6 +27,23 @@ const List = () => {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    dispatch({
+      type: actionTypes.ADD_FAV,
+      term: fav,
+    });
+  }, [fav]);
+
+  const handleOnClick = (value) => {
+    if (fav.includes(value)) {
+      setFav(fav.filter((obj) => obj !== value));
+    } else {
+      setFav([...fav, value]);
+    }
+  };
+
+  console.log(term);
 
   return (
     <div className="container">
@@ -46,6 +69,9 @@ const List = () => {
                 <TableCell>Name</TableCell>
                 <TableCell>Code</TableCell>
                 <TableCell>Rate mid</TableCell>
+                <TableCell>
+                  <FavoriteIcon />
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -59,6 +85,15 @@ const List = () => {
                       <TableCell>{rate.currency}</TableCell>
                       <TableCell>{rate.code}</TableCell>
                       <TableCell>{rate.mid}</TableCell>
+                      <TableCell onClick={() => handleOnClick(rate)}>
+                        {term.find((img) => {
+                          return img.code === rate.code;
+                        }) ? (
+                          <FavoriteIcon />
+                        ) : (
+                          <FavoriteBorderIcon />
+                        )}
+                      </TableCell>
                     </TableRow>
                   );
                 })}
