@@ -11,6 +11,7 @@ import { useStateValue } from "./StateProvider";
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import { actionTypes } from "./reducer";
+import "./List.css";
 
 const List = () => {
   const [{ term }, dispatch] = useStateValue();
@@ -42,8 +43,6 @@ const List = () => {
       setFav([...fav, value]);
     }
   };
-
-  console.log(term);
 
   return (
     <div className="container">
