@@ -4,10 +4,14 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import TextField from "@material-ui/core/TextField";
+import { Link } from "react-router-dom";
 
 const List = () => {
   const [rates, setRates] = useState();
   const [loading, setLoading] = useState(true);
+  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
     fetch("http://api.nbp.pl/api/exchangerates/tables/a/")
@@ -20,11 +24,22 @@ const List = () => {
 
   return (
     <div className="container">
+      <Link to="/fav">Favourites</Link>
       <h1>List</h1>
       {loading ? (
         <p>Loading</p>
       ) : (
         <>
+          <Autocomplete
+            id="combo-box-demo"
+            options={rates.rates}
+            getOptionLabel={(option) => option.currency}
+            style={{ width: 300 }}
+            onInputChange={(event, value) => setInputValue(value)}
+            renderInput={(params) => (
+              <TextField {...params} label="Find rates" variant="outlined" />
+            )}
+          />
           <Table>
             <TableHead>
               <TableRow>
@@ -34,15 +49,19 @@ const List = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rates.rates.map((rate, index) => {
-                return (
-                  <TableRow key={index}>
-                    <TableCell>{rate.currency}</TableCell>
-                    <TableCell>{rate.code}</TableCell>
-                    <TableCell>{rate.mid}</TableCell>
-                  </TableRow>
-                );
-              })}
+              {rates.rates
+                .filter((rate) => {
+                  return rate.currency.includes(inputValue);
+                })
+                .map((rate, index) => {
+                  return (
+                    <TableRow key={index}>
+                      <TableCell>{rate.currency}</TableCell>
+                      <TableCell>{rate.code}</TableCell>
+                      <TableCell>{rate.mid}</TableCell>
+                    </TableRow>
+                  );
+                })}
             </TableBody>
           </Table>
         </>
